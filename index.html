@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MGS Corporation</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ----- GLOBAL ----- */
+body{margin:0;font-family:Inter,Arial;background:#f1f5f9;color:#0f172a;}
+header{display:flex;justify-content:space-between;align-items:center;padding:20px 40px;background:white;box-shadow:0 4px 20px rgba(0,0,0,0.05);position:sticky;top:0;z-index:10;}
+nav a{margin:0 12px;text-decoration:none;color:#111;font-weight:600;}
+.hero{padding:100px 20px;text-align:center;background:linear-gradient(120deg,#0f172a,#1d4ed8);color:white;}
+.hero h1{font-size:50px;margin-bottom:10px;}
+.container{max-width:1200px;margin:auto;padding:40px 20px;}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;}
+.card{background:white;border-radius:18px;padding:20px;box-shadow:0 10px 25px rgba(0,0,0,0.06);cursor:pointer;transition:all 0.3s ease;}
+.card:hover{transform:translateY(-5px) scale(1.02);box-shadow:0 15px 30px rgba(0,0,0,0.2);}
+.card img{width:60px;height:60px;object-fit:contain;margin-bottom:10px;}
+button{background:#2563eb;color:white;border:none;padding:10px 16px;border-radius:10px;font-weight:600;cursor:pointer;transition:all 0.2s;}
+button:hover{opacity:0.85;transform:scale(1.05);}
+input,select,textarea{padding:10px;margin:6px 0;border-radius:8px;border:1px solid #ccc;width:100%;max-width:350px;}
+.admin{background:#020617;color:white;padding:30px;border-radius:16px;}
+.dashboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:20px;margin-bottom:20px;}
+.stat{background:#1e293b;color:white;padding:20px;border-radius:14px;text-align:center;}
+.profile{background:white;padding:20px;border-radius:16px;box-shadow:0 10px 25px rgba(0,0,0,0.06);}
+.cardBox{background:#0f172a;color:white;border-radius:16px;padding:20px;margin-top:10px;position:relative;perspective:1000px;}
+.cardBox .chip{width:40px;height:30px;background:#ffd700;border-radius:6px;position:absolute;top:20px;left:20px;transform:rotateY(0deg);transition:transform 0.6s;}
+.cardBox:hover .chip{transform:rotateY(180deg);}
+.cardBox h4{margin-top:40px;}
+.news{background:white;padding:20px;border-radius:16px;margin-bottom:15px;box-shadow:0 10px 25px rgba(0,0,0,0.06);}
+table{width:100%;border-collapse:collapse;margin-top:10px;}
+td,th{padding:8px;border-bottom:1px solid #444;}
+.chatbot{position:fixed;bottom:90px;right:20px;width:320px;background:white;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,0.25);}
+.chatbot-header{background:#2563eb;color:white;padding:10px;border-radius:14px 14px 0 0;}
+.chatbot-messages{height:200px;overflow:auto;padding:10px;font-size:14px;}
+.chatbot input{width:calc(100% - 20px);margin:10px;}
+.chat-toggle{position:fixed;bottom:20px;right:20px;background:#2563eb;color:white;border-radius:50%;width:60px;height:60px;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;}
+.hidden{display:none;}
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;visibility:hidden;opacity:0;transition:opacity 0.3s;}
+.modal.active{visibility:visible;opacity:1;}
+.modal-content{background:white;padding:20px;border-radius:12px;max-width:500px;width:90%;}
+.closeModal{float:right;cursor:pointer;font-weight:bold;}
+</style>
+</head>
+<body>
+
+<header>
+<strong>MGS Corporation</strong>
+<nav>
+<a href="#home">Home</a>
+<a href="#apps">Produkty</a>
+<a href="#news">Aktualności</a>
+<a href="#login">Logowanie</a>
+</nav>
+</header>
+
+<section class="hero" id="home">
+<h1>MGS Corporation</h1>
+<p id="companyDesc">Technologia przyszłości tworzona przez MGS Corporation.</p>
+</section>
+
+<div class="container" id="apps">
+<h2>Firmy i produkty MGS</h2>
+<div class="grid" id="appsGrid"></div>
+</div>
+
+<div class="container" id="news">
+<h2>Aktualności MGS</h2>
+<div id="newsList"></div>
+</div>
+
+<div class="container" id="login">
+<h2>Logowanie</h2>
+<select id="role">
+<option value="user">Użytkownik</option>
+<option value="admin">Administrator</option>
+</select>
+<input id="loginUser" placeholder="Login">
+<input id="loginPass" type="password" placeholder="Hasło">
+<button onclick="login()">Zaloguj</button>
+
+<h3>Rejestracja</h3>
+<input id="regUser" placeholder="Login">
+<input id="regPass" type="password" placeholder="Hasło">
+<input id="regName" placeholder="Imię">
+<input id="regSurname" placeholder="Nazwisko">
+<button onclick="register()">Utwórz konto</button>
+</div>
+
+<div class="container" id="userPanel" style="display:none">
+<h2>Panel użytkownika</h2>
+<div class="profile" id="profileBox"></div>
+<button onclick="logout()">Wyloguj</button>
+
+<h3>Zamów kartę</h3>
+<select id="cardType">
+<option>MGS Card</option>
+<option>CSO Card</option>
+</select>
+<input id="cardAddress" placeholder="Adres dostarczenia karty">
+<button onclick="requestCard()">Wyślij wniosek</button>
+
+<h3>Twoje karty</h3>
+<div id="cardArea"></div>
+</div>
+
+<div class="container admin" id="adminPanel" style="display:none">
+<h2>Panel administratora PRO</h2>
+<button onclick="logout()">Wyloguj</button>
+
+<div class="dashboard">
+<div class="stat"><h3 id="statUsers">0</h3><p>Użytkownicy</p></div>
+<div class="stat"><h3 id="statCards">0</h3><p>Wnioski kart</p></div>
+<div class="stat"><h3 id="statApps">0</h3><p>Firmy</p></div>
+</div>
+
+<h3>Użytkownicy</h3>
+<table>
+<thead><tr><th>Login</th><th>Imię</th><th>Nazwisko</th><th>Akcja</th></tr></thead>
+<tbody id="userTable"></tbody>
+</table>
+
+<h3>Wnioski kart</h3>
+<ul id="adminRequests"></ul>
+
+<h3>Dodaj firmę / aplikację</h3>
+<input id="appName" placeholder="Nazwa">
+<input id="appDesc" placeholder="Opis">
+<input id="appLogo" placeholder="URL logo">
+<button onclick="addApp()">Dodaj</button>
+
+<h3>Edytuj firmę</h3>
+<select id="editAppSelect"></select>
+<input id="editAppName" placeholder="Nowa nazwa">
+<input id="editAppDesc" placeholder="Nowy opis">
+<input id="editAppLogo" placeholder="Nowe logo">
+<button onclick="saveAppEdit()">Zapisz zmiany</button>
+<button onclick="deleteApp()">Usuń wybraną firmę</button>
+
+<h3>Dodaj aktualność</h3>
+<input id="newsTitle" placeholder="Tytuł">
+<textarea id="newsText" placeholder="Treść"></textarea>
+<button onclick="addNews()">Dodaj aktualność</button>
+
+<h3>Edytuj opis strony</h3>
+<textarea id="editDesc"></textarea>
+<button onclick="saveDesc()">Zapisz</button>
+</div>
+
+<div class="chat-toggle" onclick="toggleChat()">💬</div>
+
+<div class="chatbot hidden" id="chatbot">
+<div class="chatbot-header">AI MGS GPT</div>
+<div class="chatbot-messages" id="chatMessages"></div>
+<input id="chatInput" placeholder="Zapytaj AI" onkeydown="if(event.key==='Enter')chat()">
+</div>
+
+<!-- MODAL PODSTRONY FIRMY -->
+<div class="modal" id="companyModal">
+<div class="modal-content">
+<span class="closeModal" onclick="closeModal()">×</span>
+<h3 id="modalName"></h3>
+<img id="modalLogo" src="" style="width:80px;height:80px;">
+<p id="modalDesc"></p>
+</div>
+</div>
+
+<script>
+let users=[], apps=[], news=[], requests=[], currentUser=null, selectedAppIndex=null
+
+document.addEventListener("DOMContentLoaded",()=>{
+users=JSON.parse(localStorage.getItem('users')||'[]')
+apps=JSON.parse(localStorage.getItem('apps')||'[]')
+news=JSON.parse(localStorage.getItem('news')||'[]')
+renderApps()
+renderNews()
+updateStats()
+})
+
+function saveData(){
+localStorage.setItem('users',JSON.stringify(users))
+localStorage.setItem('apps',JSON.stringify(apps))
+localStorage.setItem('news',JSON.stringify(news))
+}
+
+function register(){
+const regUser=document.getElementById('regUser').value
+const regPass=document.getElementById('regPass').value
+const regName=document.getElementById('regName').value
+const regSurname=document.getElementById('regSurname').value
+let u={login:regUser,pass:regPass,name:regName,surname:regSurname,cards:[]}
+users.push(u)
+saveData()
+alert('Konto utworzone')
+}
+
+function login(){
+const roleValue=document.getElementById('role').value
+const loginValue=document.getElementById('loginUser').value
+const passValue=document.getElementById('loginPass').value
+
+document.getElementById('loginUser').value=''
+document.getElementById('loginPass').value=''
+
+if(roleValue==='admin' && loginValue==='Milosz' && passValue==='Admin'){
+document.getElementById('adminPanel').style.display='block'
+document.getElementById('userPanel').style.display='none'
+renderUsers()
+renderRequests()
+updateStats()
+return
+}
+
+let user=users.find(x=>x.login===loginValue && x.pass===passValue)
+if(user){
+currentUser=user
+document.getElementById('userPanel').style.display='block'
+document.getElementById('adminPanel').style.display='none'
+document.getElementById('profileBox').innerHTML=`<b>${user.name} ${user.surname}</b><br>Status: zalogowany`
+renderCard()
+}else{
+alert('Nieprawidłowe dane logowania')
+}
+}
+
+function logout(){
+currentUser=null
+document.getElementById('userPanel').style.display='none'
+document.getElementById('adminPanel').style.display='none'
+alert('Wylogowano pomyślnie')
+}
+
+function requestCard(){
+if(!currentUser){
+alert('Najpierw się zaloguj')
+return
+}
+let type=document.getElementById('cardType').value
+let addr=document.getElementById('cardAddress').value
+requests.push({user:currentUser,type:type,address:addr})
+updateStats()
+alert('Wniosek o kartę został wysłany!')
+}
+
+function renderRequests(){
+let list=document.getElementById('adminRequests')
+list.innerHTML=''
+requests.forEach((r,i)=>{
+let li=document.createElement('li')
+li.innerHTML=`${r.user.login} - ${r.type} - ${r.address} <button onclick="approve(${i})">Akceptuj</button>`
+list.appendChild(li)
+})
+}
+
+function approve(i){
+let r=requests[i]
+let card={
+number:Math.floor(Math.random()*1e16).toString().padStart(16,'0').replace(/(\d{4})(?=\d)/g,'$1 '),
+cvv:Math.floor(Math.random()*900+100),
+exp:'12/29',
+owner:r.user.name
+}
+r.user.cards.push(card)
+requests.splice(i,1)
+saveData()
+renderCard()
+renderRequests()
+updateStats()
+}
+
+function renderCard(){
+if(!currentUser)return
+let cardArea=document.getElementById('cardArea')
+cardArea.innerHTML=''
+currentUser.cards.forEach(c=>{
+cardArea.innerHTML+=`<div class='cardBox'>
+<div class="chip"></div>
+<h4>${c.owner}</h4>
+💳 ${c.number}<br>CVV ${c.cvv} | ${c.exp}
+</div>`
+})
+}
+
+function renderUsers(){
+let table=document.getElementById('userTable')
+table.innerHTML=''
+users.forEach((u,i)=>{
+let tr=document.createElement('tr')
+tr.innerHTML=`<td>${u.login}</td><td>${u.name}</td><td>${u.surname}</td><td><button onclick="deleteUser(${i})">Usuń</button></td>`
+table.appendChild(tr)
+})
+}
+
+function deleteUser(i){
+users.splice(i,1)
+saveData()
+renderUsers()
+updateStats()
+}
+
+// ----- APP MANAGEMENT -----
+function addApp(){
+let name=document.getElementById('appName').value
+let desc=document.getElementById('appDesc').value
+let logo=document.getElementById('appLogo').value
+apps.push({name,desc,logo})
+saveData()
+renderApps()
+updateStats()
+updateAppSelect()
+}
+
+function renderApps(){
+let grid=document.getElementById('appsGrid')
+grid.innerHTML=''
+apps.forEach((a,i)=>{
+grid.innerHTML+=`<div class='card' onclick="openApp(${i})"><img src='${a.logo}'><h3>${a.name}</h3><p>${a.desc}</p></div>`
+})
+}
+
+function openApp(i){
+selectedAppIndex=i
+document.getElementById('modalName').innerText=apps[i].name
+document.getElementById('modalLogo').src=apps[i].logo
+document.getElementById('modalDesc').innerText=apps[i].desc
+document.getElementById('companyModal').classList.add('active')
+}
+
+function closeModal(){
+document.getElementById('companyModal').classList.remove('active')
+}
+
+function updateAppSelect(){
+let sel=document.getElementById('editAppSelect')
+sel.innerHTML=''
+apps.forEach((a,i)=>{sel.innerHTML+=`<option value="${i}">${a.name}</option>`})
+}
+
+function saveAppEdit(){
+let i=parseInt(document.getElementById('editAppSelect').value)
+apps[i].name=document.getElementById('editAppName').value||apps[i].name
+apps[i].desc=document.getElementById('editAppDesc').value||apps[i].desc
+apps[i].logo=document.getElementById('editAppLogo').value||apps[i].logo
+saveData()
+renderApps()
+updateAppSelect()
+updateStats()
+}
+
+function deleteApp(){
+let i=parseInt(document.getElementById('editAppSelect').value)
+apps.splice(i,1)
+saveData()
+renderApps()
+updateAppSelect()
+updateStats()
+}
+
+// ----- NEWS -----
+function addNews(){
+let title=document.getElementById('newsTitle').value
+let text=document.getElementById('newsText').value
+news.push({title,text})
+saveData()
+renderNews()
+}
+
+function renderNews(){
+let list=document.getElementById('newsList')
+list.innerHTML=''
+news.forEach(n=>{list.innerHTML+=`<div class='news'><h3>${n.title}</h3><p>${n.text}</p></div>`})
+}
+
+function saveDesc(){
+let text=document.getElementById('editDesc').value
+document.getElementById('companyDesc').innerText=text
+}
+
+// ----- STATS -----
+function updateStats(){
+document.getElementById('statUsers').innerText=users.length
+document.getElementById('statCards').innerText=requests.length
+document.getElementById('statApps').innerText=apps.length
+}
+
+// ----- CHATBOT -----
+function toggleChat(){
+document.getElementById('chatbot').classList.toggle('hidden')
+}
+
+function chat(){
+let input=document.getElementById('chatInput')
+let msg=input.value
+let box=document.getElementById('chatMessages')
+box.innerHTML+=`<div><b>Ty:</b> ${msg}</div>`
+let reply='Spróbuj zapytać o MGS, karty lub produkty.'
+if(msg.toLowerCase().includes('mgs')) reply='MGS Corporation to firma technologiczna tworząca aplikacje i usługi.'
+if(msg.toLowerCase().includes('karta')) reply='Kartę możesz zamówić w panelu użytkownika.'
+if(msg.toLowerCase().includes('firma')) reply='MGS rozwija wiele projektów technologicznych.'
+box.innerHTML+=`<div><b>AI MGS:</b> ${reply}</div>`
+input.value=''
+box.scrollTop=box.scrollHeight
+}
+</script>
+
+</body>
+</html>
